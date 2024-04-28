@@ -1,0 +1,8 @@
+E:\Global Repository\GitHub Repository\IVInteractiveMusic\obj\Release\IVInteractiveMusic.csproj.AssemblyReference.cache
+E:\Global Repository\GitHub Repository\IVInteractiveMusic\obj\Release\IVInteractiveMusic.csproj.CoreCompileInputs.cache
+E:\Global Repository\GitHub Repository\IVInteractiveMusic\bin\Release\Bass.net.dll
+E:\Global Repository\GitHub Repository\IVInteractiveMusic\obj\Release\IVIntera.D16460DC.Up2Date
+E:\Global Repository\GitHub Repository\IVInteractiveMusic\bin\Release\IVInteractiveMusic.net.dll
+E:\Global Repository\GitHub Repository\IVInteractiveMusic\bin\Release\IVInteractiveMusic.net.pdb
+E:\Global Repository\GitHub Repository\IVInteractiveMusic\obj\Release\IVInteractiveMusic.net.dll
+E:\Global Repository\GitHub Repository\IVInteractiveMusic\obj\Release\IVInteractiveMusic.net.pdb
