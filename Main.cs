@@ -15,19 +15,44 @@ namespace InteractiveMusicIV
         private bool loop;
         private bool fadeOut;
         private bool fadeIn;
+        private bool enableWMusic;
+        private bool enableFMusic;
+        private bool enableDMusic;
+        private bool enableBMusic;
+        private bool enableMFMusic;
+        private bool useGlobal_WMusic;
+        private bool useGlobal_FMusic;
+        private bool useGlobal_DMusic;
+        private bool useGlobal_BMusic;
+        private bool useGlobal_MFMusic;
 
         private int initalVolume;
         private int musicHandle;
         private int rndSeed;
         private int fadingSpeed;
-        private int startAt;
 
         private Random rnd;
 
         private string[] wantedMusic3;
         private string[] wantedMusic4;
         private string[] wantedMusic5;
-        private readonly string WantedMusic = Game.InstallFolder + @"\scripts\IVInteractiveMusic\WantedMusic";
+        private string[] flyingMusic;
+        private string[] deathMusic;
+        private string[] bustedMusic;
+        private string[] failedMusic;
+
+        // Main Global Dir
+        private readonly string WantedMusic = Game.InstallFolder + @"\scripts\InteractiveMusicIV\WantedMusic";
+        private readonly string FlyingMusic = Game.InstallFolder + @"\scripts\InteractiveMusicIV\FlyingMusic";
+        private readonly string DeathMusic = Game.InstallFolder + @"\scripts\InteractiveMusicIV\DeathMusic";
+        private readonly string BustedMusic = Game.InstallFolder + @"\scripts\InteractiveMusicIV\BustedMusic";
+        private readonly string MissionFailedMusic = Game.InstallFolder + @"\scripts\InteractiveMusicIV\MissionFailedMusic";
+
+        // Local Dir
+        private readonly string IVFolder = @"\IV";
+        private readonly string TLADFolder = @"\TLAD";
+        private readonly string TBOGTFolder = @"\TBOGT";
+
 
         private enum AudioPlayMode
         {
@@ -182,12 +207,12 @@ namespace InteractiveMusicIV
                 }
                 else
                 {
-                    Game.Console.Print("DeathMusicIV could not play file. musicHandle was zero.");
+                    Game.Console.Print("InteractiveMusicIV could not play file. musicHandle was zero.");
                 }
             }
             catch (Exception ex)
             {
-                Game.Console.Print("DeathMusicIV error in Play method. Details: " + ex.ToString());
+                Game.Console.Print("InteractiveMusicIV error in Play method. Details: " + ex.ToString());
             }
         }
         private void StopSoundtrack(bool instant = false)
@@ -232,23 +257,12 @@ namespace InteractiveMusicIV
 
                 // Get and set settings
                 rndSeed = Settings.GetValueInteger("RndSeed", "General", DateTime.Now.Millisecond);
-                loop = Settings.GetValueBool("Loop", "Music", false);
-                fadeOut = Settings.GetValueBool("FadeOut", "Music", true);
-                fadeIn = Settings.GetValueBool("FadeIn", "Music", true);
-                fadingSpeed = Settings.GetValueInteger("FadingSpeed", "Music", 3000);
-                startAt = Settings.GetValueInteger("StartAt", "Music", 3);
-                if (startAt < 1 | startAt > 6)
-                {
-                    startAt = 3;
-                }
-                initalVolume = Settings.GetValueInteger("Volume", "Music", 20);
-
                 // Set new random
                 rnd = new Random(rndSeed);
-
+                LoadSettings();
                 this.Interval = 100;
-                this.Tick += VWantedMusic_Tick;
-                this.ConsoleCommand += VWantedMusic_ConsoleCommand;
+                this.Tick += InteractiveMusicIV_Tick;
+                this.ConsoleCommand += InteractiveMusicIV_Command;
             }
             catch (Exception ex)
             {
@@ -256,41 +270,51 @@ namespace InteractiveMusicIV
             }
         }
 
-        private void VWantedMusic_ConsoleCommand(object sender, ConsoleEventArgs e)
+        private void LoadSettings()
+        {
+            loop = Settings.GetValueBool("Loop", "Music", false);
+            fadeOut = Settings.GetValueBool("FadeOut", "Music", true);
+            fadeIn = Settings.GetValueBool("FadeIn", "Music", true);
+            fadingSpeed = Settings.GetValueInteger("FadingSpeed", "Music", 3000);
+            initalVolume = Settings.GetValueInteger("Volume", "Music", 20);
+        }
+
+        private void InteractiveMusicIV_Command(object sender, ConsoleEventArgs e)
         {
             switch (e.Command.ToLower())
             {
-                case "vwmusic:reloadsettings":
+                case "imusic:reloadsettings":
                     try
                     {
-                        Game.Console.Print("VWantedMusic: Reloading settings...");
-                        loop = Settings.GetValueBool("Loop", "Music", false);
-                        fadeOut = Settings.GetValueBool("FadeOut", "Music", true);
-                        fadeIn = Settings.GetValueBool("FadeIn", "Music", true);
-                        fadingSpeed = Settings.GetValueInteger("FadingSpeed", "Music", 3000);
-                        startAt = Settings.GetValueInteger("StartAt", "Music", 3);
-                        if (startAt < 1 | startAt > 6)
-                        {
-                            startAt = 3;
-                        }
-                        initalVolume = Settings.GetValueInteger("Volume", "Music", 20);
-                        Game.Console.Print("VWantedMusic: Ready.");
+                        Game.Console.Print("InteractiveMusicIV: Reloading settings...");
+                        LoadSettings();
+                        Game.Console.Print("InteractiveMusicIV: Ready.");
                     }
                     catch (Exception ex)
                     {
-                        Game.Console.Print("VWantedMusic error while reloading settings: " + ex.Message);
+                        Game.Console.Print("InteractiveMusicIV error while reloading settings: " + ex.Message);
                     }
                     break;
             }
         }
 
-        private void VWantedMusic_Tick(object sender, EventArgs e)
+        private void InteractiveMusicIV_Tick(object sender, EventArgs e)
         {
             if (Directory.Exists(WantedMusic))
             {
-                wantedMusic3 = Directory.EnumerateFiles(WantedMusic + @"\ThirdLevel").Where(file => Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".wav").ToArray();
-                wantedMusic4 = Directory.EnumerateFiles(WantedMusic + @"\FourthLevel").Where(file => Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".wav").ToArray();
-                wantedMusic5 = Directory.EnumerateFiles(WantedMusic + @"\FifthLevel").Where(file => Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".wav").ToArray();
+                if (useGlobal_WMusic)
+                {
+                    wantedMusic3 = Directory.EnumerateFiles(WantedMusic + @"\ThirdLevel").Where(file => Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".wav").ToArray();
+                    wantedMusic4 = Directory.EnumerateFiles(WantedMusic + @"\FourthLevel").Where(file => Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".wav").ToArray();
+                    wantedMusic5 = Directory.EnumerateFiles(WantedMusic + @"\FifthLevel").Where(file => Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".wav").ToArray();
+                }
+                else
+                {
+                    wantedMusic3 = Directory.EnumerateFiles(WantedMusic + IVFolder + @"\ThirdLevel").Where(file => Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".wav").ToArray();
+                    wantedMusic4 = Directory.EnumerateFiles(WantedMusic + TLADFolder + @"\FourthLevel").Where(file => Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".wav").ToArray();
+                    wantedMusic5 = Directory.EnumerateFiles(WantedMusic + TBOGTFolder + @"\FifthLevel").Where(file => Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".wav").ToArray();
+                }
+                
                 if (wantedMusic3.Length != 0 || wantedMusic4.Length != 0 || wantedMusic5.Length != 0)
                 {
                     switch (Game.LocalPlayer.WantedLevel)
