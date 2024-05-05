@@ -4,6 +4,7 @@ My main goal with this mod is to combine the 3 music mods from https://github.co
 - IV: its most ambient and dark music
 - TLAD: rock and metal
 - TBOGT: electronic and pop
+
 Of course, it will depend on the user what music to put, but in this way we could make the game more "complete" and current.
 
 I have some knowledge of C#, but it is my first time handling sound libraries, in this case BASS, and creating scripts for GTA IV. I would greatly appreciate the help of all of you to complete this project.
